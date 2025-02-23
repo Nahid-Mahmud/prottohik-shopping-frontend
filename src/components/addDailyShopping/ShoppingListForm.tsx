@@ -1,22 +1,21 @@
 "use client";
 import { ShoppingList } from "@/types/shopoing.type";
-import { useState } from "react";
+
 import { useFieldArray, useForm } from "react-hook-form";
-import { Label } from "../ui/label";
-import { Input } from "../ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { baseUrl } from "@/config/configs";
 
 export function ShoppingListForm() {
-  const [shoppingLists, setShoppingLists] = useState<ShoppingList[]>([]);
-
   const {
     register,
     control,
     handleSubmit,
     watch,
-    reset,
+    // reset,
     formState: { errors },
   } = useForm<ShoppingList>({
     defaultValues: {
@@ -30,9 +29,17 @@ export function ShoppingListForm() {
     name: "items",
   });
 
-  const onSubmit = (data: ShoppingList) => {
-    setShoppingLists([...shoppingLists, data]);
-    reset();
+  const onSubmit = async (data: ShoppingList) => {
+    console.log(data);
+    // reset();
+    console.log(baseUrl);
+    // await fetch("/api/shopping", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify(data),
+    // });
   };
 
   const watchItems = watch("items");
