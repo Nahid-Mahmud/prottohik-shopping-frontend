@@ -1,6 +1,5 @@
 "use client";
 import { ShoppingList } from "@/types/shopoing.type";
-
 import { useFieldArray, useForm } from "react-hook-form";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
@@ -8,6 +7,7 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { baseUrl } from "@/config/configs";
+import { useEffect, useState } from "react";
 
 export function ShoppingListForm() {
   const {
@@ -15,11 +15,9 @@ export function ShoppingListForm() {
     control,
     handleSubmit,
     watch,
-    // reset,
     formState: { errors },
   } = useForm<ShoppingList>({
     defaultValues: {
-      date: new Date().toISOString().split("T")[0],
       items: [{ name: "", cost: 0, quantity: 1, unit: "KG" }],
     },
   });
@@ -31,19 +29,16 @@ export function ShoppingListForm() {
 
   const onSubmit = async (data: ShoppingList) => {
     console.log(data);
-    // reset();
     console.log(baseUrl);
-    // await fetch("/api/shopping", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify(data),
-    // });
   };
 
   const watchItems = watch("items");
-  const totalCost = watchItems.reduce((sum, item) => sum + item.cost * item.quantity, 0);
+  const [totalCost, setTotalCost] = useState(0);
+
+  useEffect(() => {
+    const cost = watchItems.reduce((sum, item) => sum + item.cost * item.quantity, 0);
+    setTotalCost(cost);
+  }, [watchItems]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -110,7 +105,6 @@ export function ShoppingListForm() {
                   <SelectValue placeholder="Select unit" />
                 </SelectTrigger>
                 <SelectContent>
-                  {/* N/A*/}
                   <SelectItem value="N/A">N/A</SelectItem>
                   <SelectItem value="KG">KG</SelectItem>
                   <SelectItem value="Liter">Liter</SelectItem>
