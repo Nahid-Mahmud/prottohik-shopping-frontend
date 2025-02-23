@@ -13,8 +13,8 @@ const GetHeaderTitle = () => {
       case "/":
         setTitle("Analytics");
         break;
-      case "/food-buses":
-        setTitle("Food Provider");
+      case "/add-daily-shopping":
+        setTitle("Daily Shopping");
         break;
       case "/food-buses-details":
         setTitle("Food Provider");

@@ -1,18 +1,17 @@
 import Link from "next/link";
 import NavLink from "./NavLink";
 
-import { FaHome } from "react-icons/fa";
+import { FaHome, FaShoppingCart } from "react-icons/fa";
 import { HiUserGroup } from "react-icons/hi";
 import { IoIosNotificationsOutline } from "react-icons/io";
-import { IoBusSharp } from "react-icons/io5";
 import { LuMessageCircleMore } from "react-icons/lu";
 import { MdOutlineWorkspacePremium } from "react-icons/md";
 import { Button } from "../ui/button";
 
 const navLinks = [
   { icon: <FaHome />, href: "/", label: "home" },
-  { icon: <IoBusSharp />, href: "/food-buses", label: "Food Buses" },
-  { icon: <IoBusSharp />, href: "/food-buses-details", label: "Food Buses Details" },
+  // { icon: <IoBusSharp />, href: "/food-buses", label: "Food Buses" },
+  { icon: <FaShoppingCart />, href: "/add-daily-shopping", label: "Daily Shopping" },
   { icon: <HiUserGroup />, href: "/subscription-list", label: "Subscription List" },
   {
     icon: <MdOutlineWorkspacePremium />,
