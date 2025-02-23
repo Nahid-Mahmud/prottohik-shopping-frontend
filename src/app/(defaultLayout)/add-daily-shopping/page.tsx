@@ -1,11 +1,10 @@
-import React from 'react'
+import { ShoppingListForm } from "@/components/addDailyShopping/ShoppingListForm";
 
-function AddDailyShopping() {
+export default async function ShoppingListPage() {
   return (
-    <div>
-        
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Daily Shopping List</h1>
+      <ShoppingListForm />
     </div>
-  )
+  );
 }
-
-export default AddDailyShopping
