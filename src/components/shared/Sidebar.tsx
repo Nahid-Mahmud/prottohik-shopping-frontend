@@ -1,15 +1,16 @@
 import Link from "next/link";
 import NavLink from "./NavLink";
 
+import { FaHome } from "react-icons/fa";
 import { HiUserGroup } from "react-icons/hi";
 import { IoIosNotificationsOutline } from "react-icons/io";
 import { IoBusSharp } from "react-icons/io5";
 import { LuMessageCircleMore } from "react-icons/lu";
-import { MdOutlineDashboard, MdOutlineWorkspacePremium } from "react-icons/md";
+import { MdOutlineWorkspacePremium } from "react-icons/md";
 import { Button } from "../ui/button";
 
 const navLinks = [
-  { icon: <MdOutlineDashboard />, href: "/", label: "Dashboard" },
+  { icon: <FaHome />, href: "/", label: "home" },
   { icon: <IoBusSharp />, href: "/food-buses", label: "Food Buses" },
   { icon: <IoBusSharp />, href: "/food-buses-details", label: "Food Buses Details" },
   { icon: <HiUserGroup />, href: "/subscription-list", label: "Subscription List" },
@@ -24,16 +25,13 @@ const navLinks = [
 
 function Sidebar() {
   return (
-    <div className="flex px-5 flex-col h-full bg-white">
-      <div className="px-6 pb-6 pt-4">
-        <Link href="/" className="flex items-center gap-2">
-          {/* <Image height={1000} width={1000} src={logo} alt="Logo" className="h-full w-full" /> */}
-          <span className="font-semibold">Admin Panel</span>
-        </Link>
-      </div>
+    <div className="flex px-5 flex-col h-full bg-white border-r border-[#e5e5e5]">
+      <Link href="/" className="flex  gap-2">
+        <span className="font-semibold text-2xl my-5">Admin Panel</span>
+      </Link>
+
       <nav className="flex justify-between h-full mb-10 flex-col">
         <div className="flex-1 h-full flex flex-col gap-4 pb-4">
-          <h4 className="text-[#817F9B] text-[16px] mb-3 font-normal leading-[15px]">MANAGEMENT</h4>
           <div className="flex flex-col gap-1">
             {navLinks.map((link, index) => (
               <NavLink key={index} icon={link.icon} href={link.href}>

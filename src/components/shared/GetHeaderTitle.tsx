@@ -11,7 +11,7 @@ const GetHeaderTitle = () => {
   useEffect(() => {
     switch (pathname) {
       case "/":
-        setTitle("Dashboard");
+        setTitle("Analytics");
         break;
       case "/food-buses":
         setTitle("Food Provider");
