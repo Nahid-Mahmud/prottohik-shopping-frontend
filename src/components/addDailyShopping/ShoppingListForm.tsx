@@ -41,7 +41,7 @@ export function ShoppingListForm() {
   }, [watchItems]);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
       <div>
         <Label htmlFor="date">Date</Label>
         <Input className="w-fit" type="date" id="date" {...register("date", { required: "Date is required" })} />
