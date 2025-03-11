@@ -1,13 +1,25 @@
 "use client";
-import { ShoppingList } from "@/types/shopoing.type";
 import { useFieldArray, useForm } from "react-hook-form";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { baseUrl } from "@/config/configs";
-import { useEffect, useState } from "react";
+
+type ShoppingItem = {
+  name: string;
+  cost: number;
+  quantity: number;
+  unit: "KG" | "Liter" | "Gram" | "N/A";
+  group: string;
+};
+
+type ShoppingList = {
+  date: string;
+  items: ShoppingItem[];
+  groups: string[];
+  newGroup?: string;
+};
 
 export function ShoppingListForm() {
   const {
@@ -15,10 +27,12 @@ export function ShoppingListForm() {
     control,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<ShoppingList>({
     defaultValues: {
-      items: [{ name: "", cost: 0, quantity: 1, unit: "KG" }],
+      items: [{ name: "", cost: 0, quantity: 1, unit: "KG", group: "Group 1" }],
+      groups: ["Group 1"],
     },
   });
 
@@ -27,107 +41,160 @@ export function ShoppingListForm() {
     name: "items",
   });
 
+  const appendGroup = (group: string) => {
+    setValue("groups", [...watchGroups, group]);
+  };
+
   const onSubmit = async (data: ShoppingList) => {
-    console.log(data);
-    console.log(baseUrl);
+    const groupedData = data.items.reduce((acc, item) => {
+      const group = acc[item.group] || [];
+      group.push(item);
+      acc[item.group] = group;
+      return acc;
+    }, {} as Record<string, ShoppingList["items"]>);
+    console.log(groupedData);
   };
 
   const watchItems = watch("items");
-  const [totalCost, setTotalCost] = useState(0);
+  const watchGroups = watch("groups");
 
-  useEffect(() => {
-    const cost = watchItems.reduce((sum, item) => sum + item.cost * item.quantity, 0);
-    setTotalCost(cost);
-  }, [watchItems]);
+  const totalCost = watchItems.reduce((sum, item) => sum + item.cost * item.quantity, 0);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4">
       <div>
         <Label htmlFor="date">Date</Label>
         <Input className="w-fit" type="date" id="date" {...register("date", { required: "Date is required" })} />
         {errors.date && <p className="text-red-500 text-sm">{errors.date.message}</p>}
       </div>
 
-      {fields.map((field, index) => (
-        <Card key={field.id}>
-          <CardHeader>
-            <CardTitle>Item {index + 1}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label htmlFor={`items.${index}.name`}>Item Name</Label>
-              <Input {...register(`items.${index}.name` as const, { required: "Item name is required" })} />
-              {errors.items?.[index]?.name && (
-                <p className="text-red-500 text-sm">{errors.items[index]?.name?.message}</p>
-              )}
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor={`items.${index}.cost`}>Cost</Label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  {...register(`items.${index}.cost` as const, {
-                    required: "Cost is required",
-                    min: { value: 0, message: "Cost must be positive" },
-                  })}
-                />
-                {errors.items?.[index]?.cost && (
-                  <p className="text-red-500 text-sm">{errors.items[index]?.cost?.message}</p>
-                )}
-              </div>
-              <div>
-                <Label htmlFor={`items.${index}.quantity`}>Quantity</Label>
-                <Input
-                  type="number"
-                  {...register(`items.${index}.quantity` as const, {
-                    required: "Quantity is required",
-                    min: { value: 1, message: "Quantity must be at least 1" },
-                  })}
-                />
-                {errors.items?.[index]?.quantity && (
-                  <p className="text-red-500 text-sm">{errors.items[index]?.quantity?.message}</p>
-                )}
-              </div>
-            </div>
-            <div>
-              <Label htmlFor={`items.${index}.unit`}>Unit</Label>
-              <Select
-                onValueChange={(value) => {
-                  const event = {
-                    target: { value, name: `items.${index}.unit` },
-                  };
-                  register(`items.${index}.unit` as const).onChange(event);
-                }}
-                defaultValue={field.unit}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select unit" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="N/A">N/A</SelectItem>
-                  <SelectItem value="KG">KG</SelectItem>
-                  <SelectItem value="Liter">Liter</SelectItem>
-                  <SelectItem value="Gram">Gram</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            {index > 0 && (
-              <Button type="button" variant="destructive" onClick={() => remove(index)}>
-                Remove Item
-              </Button>
-            )}
-          </CardContent>
-        </Card>
+      {watchGroups.map((group, groupIndex) => (
+        <div key={groupIndex}>
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-bold">Group {groupIndex + 1}:</h2>
+            <Input
+              {...register(`groups.${groupIndex}` as const, { required: "Group name is required" })}
+              defaultValue={group}
+            />
+          </div>
+          {fields
+            .filter((field) => field.group === group)
+            .map((field, index) => (
+              <Card key={field.id}>
+                <CardHeader>
+                  <CardTitle>Item {index + 1}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor={`items.${fields.findIndex((f) => f.id === field.id)}.name`}>Item Name</Label>
+                    <Input
+                      {...register(`items.${fields.findIndex((f) => f.id === field.id)}.name` as const, {
+                        required: "Item name is required",
+                      })}
+                    />
+                    {errors.items?.[fields.findIndex((f) => f.id === field.id)]?.name && (
+                      <p className="text-red-500 text-sm">
+                        {errors.items[fields.findIndex((f) => f.id === field.id)]?.name?.message}
+                      </p>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor={`items.${fields.findIndex((f) => f.id === field.id)}.cost`}>Cost</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        {...register(`items.${fields.findIndex((f) => f.id === field.id)}.cost` as const, {
+                          required: "Cost is required",
+                          min: { value: 0, message: "Cost must be positive" },
+                        })}
+                      />
+                      {errors.items?.[fields.findIndex((f) => f.id === field.id)]?.cost && (
+                        <p className="text-red-500 text-sm">
+                          {errors.items[fields.findIndex((f) => f.id === field.id)]?.cost?.message}
+                        </p>
+                      )}
+                    </div>
+                    <div>
+                      <Label htmlFor={`items.${fields.findIndex((f) => f.id === field.id)}.quantity`}>Quantity</Label>
+                      <Input
+                        type="number"
+                        {...register(`items.${fields.findIndex((f) => f.id === field.id)}.quantity` as const, {
+                          required: "Quantity is required",
+                          min: { value: 1, message: "Quantity must be at least 1" },
+                        })}
+                      />
+                      {errors.items?.[fields.findIndex((f) => f.id === field.id)]?.quantity && (
+                        <p className="text-red-500 text-sm">
+                          {errors.items[fields.findIndex((f) => f.id === field.id)]?.quantity?.message}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor={`items.${fields.findIndex((f) => f.id === field.id)}.unit`}>Unit</Label>
+                    <Select
+                      onValueChange={(value) =>
+                        setValue(
+                          `items.${fields.findIndex((f) => f.id === field.id)}.unit`,
+                          value as "KG" | "Liter" | "Gram" | "N/A"
+                        )
+                      }
+                      defaultValue={field.unit}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select unit" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="N/A">N/A</SelectItem>
+                        <SelectItem value="KG">KG</SelectItem>
+                        <SelectItem value="Liter">Liter</SelectItem>
+                        <SelectItem value="Gram">Gram</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {index > 0 && (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      onClick={() => remove(fields.findIndex((f) => f.id === field.id))}
+                    >
+                      Remove Item
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          <Button type="button" onClick={() => append({ name: "", cost: 0, quantity: 1, unit: "KG", group })}>
+            Add Item to {group}
+          </Button>
+        </div>
       ))}
 
-      <Button type="button" onClick={() => append({ name: "", cost: 0, quantity: 1, unit: "KG" })}>
-        Add Item
+      <div>
+        <Label htmlFor="newGroup">New Group Name</Label>
+        <Input id="newGroup" {...register("newGroup", { required: "Group name is required" })} />
+        {errors.newGroup && <p className="text-red-500 text-sm">{errors.newGroup.message}</p>}
+      </div>
+      <Button
+        type="button"
+        onClick={() => {
+          const newGroup = watch("newGroup");
+          if (newGroup) {
+            appendGroup(newGroup);
+            append({ name: "", cost: 0, quantity: 1, unit: "KG", group: newGroup });
+            setValue("newGroup", ""); // Clear the input field
+          }
+        }}
+      >
+        Add New Group
       </Button>
 
       <div className="text-xl font-bold">Total Cost: ${totalCost.toFixed(2)}</div>
 
-      <Button type="submit">Save Shopping List</Button>
-    </form>
+      <Button type="button" onClick={handleSubmit(onSubmit)}>
+        Save Shopping List
+      </Button>
+    </div>
   );
 }

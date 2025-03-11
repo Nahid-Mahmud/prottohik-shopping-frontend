@@ -12,7 +12,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen ">
       {/* Mobile Nav */}
       <Sheet>
         <SheetTrigger asChild className="lg:hidden  fixed left-4 top-4 z-50">
@@ -32,9 +32,9 @@ export default function DashboardLayout({
       </div>
 
       {/* Main Content */}
-      <div className="lg:pl-64 h-screen overflow-y-hidden">
+      <div className="lg:pl-64 h-screen overflow-y-auto">
         <Header />
-        <main className="p-4 rounded-tl-lg  broder h-full  overflow-y-auto ">{children}</main>
+        <main className="p-4 rounded-tl-lg border h-full">{children}</main>
       </div>
     </div>
   );
