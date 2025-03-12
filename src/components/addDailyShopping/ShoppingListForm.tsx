@@ -159,6 +159,7 @@ export function ShoppingListForm() {
                         type="button"
                         variant="destructive"
                         onClick={() => remove(fields.findIndex((f) => f.id === field.id))}
+                        className="mt-4"
                       >
                         Remove Item
                       </Button>
