@@ -69,102 +69,104 @@ export function ShoppingListForm() {
       </div>
 
       {watchGroups.map((group, groupIndex) => (
-        <div key={groupIndex}>
+        <div key={groupIndex} className="flex flex-col gap-4">
           <div className="flex items-center gap-2">
-            <h2 className="text-lg font-bold">Group {groupIndex + 1}:</h2>
+            <h2 className="text-lg font-bold text-nowrap">Group {groupIndex + 1}:</h2>
             <Input
               {...register(`groups.${groupIndex}` as const, { required: "Group name is required" })}
               defaultValue={group}
             />
           </div>
-          {fields
-            .filter((field) => field.group === group)
-            .map((field, index) => (
-              <Card key={field.id}>
-                <CardHeader>
-                  <CardTitle>Item {index + 1}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor={`items.${fields.findIndex((f) => f.id === field.id)}.name`}>Item Name</Label>
-                    <Input
-                      {...register(`items.${fields.findIndex((f) => f.id === field.id)}.name` as const, {
-                        required: "Item name is required",
-                      })}
-                    />
-                    {errors.items?.[fields.findIndex((f) => f.id === field.id)]?.name && (
-                      <p className="text-red-500 text-sm">
-                        {errors.items[fields.findIndex((f) => f.id === field.id)]?.name?.message}
-                      </p>
+          <div className="flex flex-col gap-4">
+            {fields
+              .filter((field) => field.group === group)
+              .map((field, index) => (
+                <Card key={field.id} className="shadow-none border-none">
+                  <CardHeader>
+                    <CardTitle>Item {index + 1}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-col gap-4">
+                      <Label htmlFor={`items.${fields.findIndex((f) => f.id === field.id)}.name`}>Item Name</Label>
+                      <Input
+                        {...register(`items.${fields.findIndex((f) => f.id === field.id)}.name` as const, {
+                          required: "Item name is required",
+                        })}
+                      />
+                      {errors.items?.[fields.findIndex((f) => f.id === field.id)]?.name && (
+                        <p className="text-red-500 text-sm">
+                          {errors.items[fields.findIndex((f) => f.id === field.id)]?.name?.message}
+                        </p>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor={`items.${fields.findIndex((f) => f.id === field.id)}.cost`}>Cost</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          {...register(`items.${fields.findIndex((f) => f.id === field.id)}.cost` as const, {
+                            required: "Cost is required",
+                            min: { value: 0, message: "Cost must be positive" },
+                          })}
+                        />
+                        {errors.items?.[fields.findIndex((f) => f.id === field.id)]?.cost && (
+                          <p className="text-red-500 text-sm">
+                            {errors.items[fields.findIndex((f) => f.id === field.id)]?.cost?.message}
+                          </p>
+                        )}
+                      </div>
+                      <div>
+                        <Label htmlFor={`items.${fields.findIndex((f) => f.id === field.id)}.quantity`}>Quantity</Label>
+                        <Input
+                          type="number"
+                          {...register(`items.${fields.findIndex((f) => f.id === field.id)}.quantity` as const, {
+                            required: "Quantity is required",
+                            min: { value: 1, message: "Quantity must be at least 1" },
+                          })}
+                        />
+                        {errors.items?.[fields.findIndex((f) => f.id === field.id)]?.quantity && (
+                          <p className="text-red-500 text-sm">
+                            {errors.items[fields.findIndex((f) => f.id === field.id)]?.quantity?.message}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor={`items.${fields.findIndex((f) => f.id === field.id)}.unit`}>Unit</Label>
+                      <Select
+                        onValueChange={(value) =>
+                          setValue(
+                            `items.${fields.findIndex((f) => f.id === field.id)}.unit`,
+                            value as "KG" | "Liter" | "Gram" | "N/A"
+                          )
+                        }
+                        defaultValue={field.unit}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select unit" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="N/A">N/A</SelectItem>
+                          <SelectItem value="KG">KG</SelectItem>
+                          <SelectItem value="Liter">Liter</SelectItem>
+                          <SelectItem value="Gram">Gram</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {index > 0 && (
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        onClick={() => remove(fields.findIndex((f) => f.id === field.id))}
+                      >
+                        Remove Item
+                      </Button>
                     )}
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor={`items.${fields.findIndex((f) => f.id === field.id)}.cost`}>Cost</Label>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        {...register(`items.${fields.findIndex((f) => f.id === field.id)}.cost` as const, {
-                          required: "Cost is required",
-                          min: { value: 0, message: "Cost must be positive" },
-                        })}
-                      />
-                      {errors.items?.[fields.findIndex((f) => f.id === field.id)]?.cost && (
-                        <p className="text-red-500 text-sm">
-                          {errors.items[fields.findIndex((f) => f.id === field.id)]?.cost?.message}
-                        </p>
-                      )}
-                    </div>
-                    <div>
-                      <Label htmlFor={`items.${fields.findIndex((f) => f.id === field.id)}.quantity`}>Quantity</Label>
-                      <Input
-                        type="number"
-                        {...register(`items.${fields.findIndex((f) => f.id === field.id)}.quantity` as const, {
-                          required: "Quantity is required",
-                          min: { value: 1, message: "Quantity must be at least 1" },
-                        })}
-                      />
-                      {errors.items?.[fields.findIndex((f) => f.id === field.id)]?.quantity && (
-                        <p className="text-red-500 text-sm">
-                          {errors.items[fields.findIndex((f) => f.id === field.id)]?.quantity?.message}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div>
-                    <Label htmlFor={`items.${fields.findIndex((f) => f.id === field.id)}.unit`}>Unit</Label>
-                    <Select
-                      onValueChange={(value) =>
-                        setValue(
-                          `items.${fields.findIndex((f) => f.id === field.id)}.unit`,
-                          value as "KG" | "Liter" | "Gram" | "N/A"
-                        )
-                      }
-                      defaultValue={field.unit}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select unit" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="N/A">N/A</SelectItem>
-                        <SelectItem value="KG">KG</SelectItem>
-                        <SelectItem value="Liter">Liter</SelectItem>
-                        <SelectItem value="Gram">Gram</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  {index > 0 && (
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      onClick={() => remove(fields.findIndex((f) => f.id === field.id))}
-                    >
-                      Remove Item
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))}
+          </div>
           <Button type="button" onClick={() => append({ name: "", cost: 0, quantity: 1, unit: "KG", group })}>
             Add Item to {group}
           </Button>

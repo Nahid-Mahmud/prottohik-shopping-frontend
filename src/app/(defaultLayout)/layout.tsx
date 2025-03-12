@@ -34,7 +34,7 @@ export default function DashboardLayout({
       {/* Main Content */}
       <div className="lg:pl-64 h-screen overflow-y-auto">
         <Header />
-        <main className="p-4 rounded-tl-lg border h-full">{children}</main>
+        <main className="p-4 rounded-tl-lg h-full">{children}</main>
       </div>
     </div>
   );
